@@ -5,6 +5,7 @@
     "email": "gabriel160499@gmail.com",
     "name": "Gabriel Duarte"
   },
+  "packageManager": "yarn@1.22.22",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
