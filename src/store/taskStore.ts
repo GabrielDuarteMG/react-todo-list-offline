@@ -9,6 +9,7 @@ import {
   updateTodoList,
   deleteTodoList as deleteTodoListFromDB,
   exportAllDataToJSON,
+  importDataFromJSON,
 } from "../services/indexedDB";
 import type { Task, TaskStore, TodoList } from "../types";
 
@@ -252,7 +253,56 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     set({ filterText: text });
   },
 
-  printAllActions: async () => {
-    console.log("Todo Lists:", await exportAllDataToJSON());
+  exportTasks: async () => {
+    // await exportAllDataToJSON() copia para o clipboard
+    const data = await exportAllDataToJSON();
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "tasks.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  },
+
+  importTasks: async (url: string) => {
+    if (url.includes("gist.github.com")) {
+      const gistId = url.split("/").pop();
+      get().importFromGist(gistId!);
+      return;
+    }
+    const data = await (await fetch(url)).text();
+    await importDataFromJSON(data);
+    const parsedData = JSON.parse(data);
+    const { todoLists, tasks } = parsedData;
+    set({ todoLists, tasks });
+    const { currentTodoList } = get();
+    if (!currentTodoList && todoLists.length > 0) {
+      set({ currentTodoList: todoLists[0].id });
+      get().fetchTasks();
+    }
+  },
+
+  importFromGist: async (gistId: string) => {
+    fetch(`https://api.github.com/gists/${gistId}`)
+      .then((response) => response.json())
+      .then(async (data) => {
+        const gistContent = data.files["tasks.json"].content;
+
+        await importDataFromJSON(gistContent);
+        const parsedData = JSON.parse(gistContent);
+        const { todoLists, tasks } = parsedData;
+        set({ todoLists, tasks });
+        const { currentTodoList } = get();
+        if (!currentTodoList && todoLists.length > 0) {
+          set({ currentTodoList: todoLists[0].id });
+          get().fetchTasks();
+        }
+      })
+      .catch((error) => {
+        console.error("Erro ao buscar o gist:", error);
+      });
   },
 }));

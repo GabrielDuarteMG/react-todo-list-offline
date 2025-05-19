@@ -38,5 +38,7 @@ export interface TaskStore {
   deleteTask: (id: string) => Promise<void>;
   setViewMode: (mode: 'list' | 'text') => void;
   setFilterText: (text: string) => void;
-  printAllActions: () => Promise<void>;
+  exportTasks: () => Promise<void>;
+  importTasks: (url: string) => Promise<void>;
+  importFromGist: (url: string) => Promise<void>;
 }
