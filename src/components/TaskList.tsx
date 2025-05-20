@@ -4,7 +4,8 @@ import TaskItem from "./TaskItem";
 import { AlertCircle } from "lucide-react";
 
 const TaskList: React.FC = () => {
-  const { tasks, isLoading, error, fetchTasks, filterText } = useTaskStore();
+  const { tasks, isLoading, error, fetchTasks, filterText, currentTodoList } =
+    useTaskStore();
 
   useEffect(() => {
     fetchTasks();
@@ -19,23 +20,29 @@ const TaskList: React.FC = () => {
     }
     return filtered
       .slice()
-      .sort((a, b) => Number(a.completed) - Number(b.completed));
-  }, [tasks, filterText]);
+      .sort((a, b) => Number(a.completed) - Number(b.completed))
+      .filter((task) => task.todoListId === currentTodoList);
+  }, [tasks, filterText, currentTodoList]);
 
   if (isLoading && tasks.length === 0) {
     return (
       <div className="flex justify-center p-8">
-        <div className="animate-pulse text-blue-500">Loading tasks...</div>
+        <div className="animate-pulse text-blue-500 dark:text-blue-400">
+          Loading tasks...
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded mb-4">
+      <div className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 dark:border-red-700 p-4 rounded mb-4">
         <div className="flex items-center">
-          <AlertCircle className="text-red-500 mr-2" size={20} />
-          <p className="text-red-700">Error: {error}</p>
+          <AlertCircle
+            className="text-red-500 dark:text-red-400 mr-2"
+            size={20}
+          />
+          <p className="text-red-700 dark:text-red-300">Error: {error}</p>
         </div>
       </div>
     );
@@ -43,11 +50,13 @@ const TaskList: React.FC = () => {
 
   if (filteredTasks.length === 0) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+      <div className="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-8 text-center">
         {filterText ? (
-          <p className="text-gray-500">No tasks match your search.</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            No tasks match your search.
+          </p>
         ) : (
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             No tasks yet. Add your first task above!
           </p>
         )}

@@ -12,6 +12,7 @@ import {
   importDataFromJSON,
 } from "../services/indexedDB";
 import type { Task, TaskStore, TodoList } from "../types";
+import { Utils } from "../Utils/Utils";
 
 export const useTaskStore = create<TaskStore>((set, get) => ({
   tasks: [],
@@ -22,14 +23,12 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   viewMode: "list",
   filterText: "",
 
-  // TodoList actions
   fetchTodoLists: async () => {
     set({ isLoading: true, error: null });
     try {
       const todoLists = await getAllTodoLists();
       set({ todoLists, isLoading: false });
 
-      // Set current todo list if none is selected
       const { currentTodoList } = get();
       if (!currentTodoList && todoLists.length > 0) {
         set({ currentTodoList: todoLists[0].id });
@@ -304,5 +303,34 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       .catch((error) => {
         console.error("Erro ao buscar o gist:", error);
       });
+  },
+
+  exportTasksToGist: async () => {
+    const githubToken = localStorage.getItem("githubToken");
+    const gistUrl = localStorage.getItem("gistId");
+    if (Utils.checkGithubToken(githubToken) && gistUrl) {
+      const data = await exportAllDataToJSON();
+      fetch(`https://api.github.com/gists/${Utils.getGistIdByUrl(gistUrl)}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `token ${githubToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          files: {
+            "tasks.json": {
+              content: data,
+            },
+          },
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Gist atualizado com sucesso:", data);
+        })
+        .catch((error) => {
+          console.error("Erro ao atualizar o gist:", error);
+        });
+    }
   },
 }));

@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Plus, Edit2, Trash2, Check, X } from "lucide-react";
 import { useTaskStore } from "../store/taskStore";
+import { useSync } from "../hooks/useSync";
 
 const TodoListTabs: React.FC = () => {
   const {
@@ -11,6 +12,7 @@ const TodoListTabs: React.FC = () => {
     deleteTodoList,
     setCurrentTodoList,
   } = useTaskStore();
+  const { sendTasks } = useSync();
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [newListTitle, setNewListTitle] = useState("");
@@ -20,6 +22,7 @@ const TodoListTabs: React.FC = () => {
     e.preventDefault();
     if (newListTitle.trim()) {
       addTodoList(newListTitle.trim());
+      sendTasks();
       setNewListTitle("");
       setIsAddingNew(false);
       setCurrentTodoList(newListTitle.trim());
@@ -27,11 +30,13 @@ const TodoListTabs: React.FC = () => {
   };
 
   const todoListsRender = useMemo(() => {
-    return todoLists.sort((a, b) => {
-      if (a.title < b.title) return -1;
-      if (a.title > b.title) return 1;
-      return 0;
-    }).reverse()
+    return todoLists
+      .sort((a, b) => {
+        if (a.title < b.title) return -1;
+        if (a.title > b.title) return 1;
+        return 0;
+      })
+      .reverse();
   }, [todoLists]);
 
   const handleEdit = (id: string, currentTitle: string) => {
@@ -42,6 +47,7 @@ const TodoListTabs: React.FC = () => {
   const handleSaveEdit = async (id: string) => {
     if (editValue.trim() !== "") {
       await editTodoList(id, editValue.trim());
+      sendTasks();
     }
     setIsEditing(null);
   };
@@ -53,6 +59,7 @@ const TodoListTabs: React.FC = () => {
       )
     ) {
       await deleteTodoList(id);
+      sendTasks();
       setCurrentTodoList(null);
     }
   };
@@ -67,12 +74,12 @@ const TodoListTabs: React.FC = () => {
               value={newListTitle}
               onChange={(e) => setNewListTitle(e.target.value)}
               placeholder="List name"
-              className="px-3 py-2 border rounded-lg text-sm w-40"
+              className="px-3 py-2 border rounded-lg text-sm w-40 dark:bg-gray-900 dark:text-gray-200 dark:border-gray-700 dark:focus:white focus:outline-none "
               autoFocus
             />
             <button
               type="submit"
-              className="p-2 text-green-500 hover:text-green-600"
+              className="p-2 text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300"
               disabled={!newListTitle.trim()}
             >
               <Check size={20} />
@@ -80,7 +87,7 @@ const TodoListTabs: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsAddingNew(false)}
-              className="p-2 text-red-500 hover:text-red-600"
+              className="p-2 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
             >
               <X size={20} />
             </button>
@@ -88,7 +95,7 @@ const TodoListTabs: React.FC = () => {
         ) : (
           <button
             onClick={() => setIsAddingNew(true)}
-            className="flex items-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors text-sm font-medium"
+            className="flex items-center gap-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg transition-colors text-sm font-medium dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200"
           >
             <Plus size={16} />
             New List
@@ -99,8 +106,8 @@ const TodoListTabs: React.FC = () => {
             key={list.id}
             className={`relative group ${
               currentTodoList === list.id
-                ? "bg-blue-500 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-50"
+                ? "bg-blue-500 text-white dark:bg-blue-600 dark:text-white"
+                : "bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
             } rounded-lg shadow-sm transition-all duration-200 pr-4 pl-4`}
           >
             {isEditing === list.id ? (
@@ -109,7 +116,7 @@ const TodoListTabs: React.FC = () => {
                   type="text"
                   value={editValue}
                   onChange={(e) => setEditValue(e.target.value)}
-                  className="px-2 py-1 text-gray-700 border rounded-md text-sm w-32"
+                  className="px-2 py-1 text-gray-700 border rounded-md text-sm w-32 dark:text-gray-200 dark:bg-gray-900 dark:border-gray-700"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleSaveEdit(list.id);
                     if (e.key === "Escape") setIsEditing(null);
@@ -118,13 +125,13 @@ const TodoListTabs: React.FC = () => {
                 />
                 <button
                   onClick={() => handleSaveEdit(list.id)}
-                  className="p-1 text-green-500 hover:text-green-600"
+                  className="p-1 text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300"
                 >
                   <Check size={16} />
                 </button>
                 <button
                   onClick={() => setIsEditing(null)}
-                  className="p-1 text-red-500 hover:text-red-600"
+                  className="p-1 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
                 >
                   <X size={16} />
                 </button>
@@ -142,13 +149,13 @@ const TodoListTabs: React.FC = () => {
               <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1 px-2 justify-between w-full">
                 <button
                   onClick={() => handleEdit(list.id, list.title)}
-                  className="p-1 text-white hover:text-blue-100 transition-colors"
+                  className="p-1 text-white hover:text-blue-100 transition-colors dark:text-white dark:hover:text-blue-200"
                 >
                   <Edit2 size={14} />
                 </button>
                 <button
                   onClick={() => handleDelete(list.id)}
-                  className="p-1 text-white hover:text-blue-100 transition-colors"
+                  className="p-1 text-white hover:text-blue-100 transition-colors dark:text-white dark:hover:text-blue-200"
                 >
                   <Trash2 size={14} />
                 </button>

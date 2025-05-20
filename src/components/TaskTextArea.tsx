@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useTaskStore } from "../store/taskStore";
 import type { Task } from "../types";
+import { useSync } from "../hooks/useSync";
 
 const TaskTextArea: React.FC = () => {
   const { tasks, filterText, addTask, toggleTask, deleteTask } = useTaskStore();
   const [textValue, setTextValue] = useState("");
-
+  const { sendTasks } = useSync();
   const filteredTasks = React.useMemo(() => {
     if (!filterText) return tasks;
     return tasks.filter((task) =>
@@ -52,6 +53,7 @@ const TaskTextArea: React.FC = () => {
         currentTasks.delete(existingTask.text);
       } else {
         await addTask(taskText);
+        sendTasks()
         if (isCompleted) {
           const newlyAddedTask = tasks.find((t) => t.text === taskText);
           if (newlyAddedTask) {
@@ -64,6 +66,7 @@ const TaskTextArea: React.FC = () => {
     if (filterText === "") {
       for (const task of currentTasks.values()) {
         await deleteTask(task.id);
+        sendTasks()
       }
     }
   };
@@ -74,14 +77,17 @@ const TaskTextArea: React.FC = () => {
         value={textValue}
         onChange={handleTextChange}
         onBlur={handleTextBlur}
-        className="w-full h-[400px] p-4 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all"
+        className="w-full h-[400px] p-4 border border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 transition-all
+        dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600 dark:focus:border-blue-400 dark:focus:ring-blue-900"
         placeholder="# Completed task&#10;@ Pending task"
       />
-      <div className="mt-3 text-sm text-gray-500">
+      <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">
         <p>
-          Use <code className="bg-gray-100 px-1 rounded">#</code> for completed
-          tasks and <code className="bg-gray-100 px-1 rounded">@</code> for
-          pending tasks.
+          Use{" "}
+          <code className="bg-gray-100 px-1 rounded dark:bg-gray-700">#</code>{" "}
+          for completed tasks and{" "}
+          <code className="bg-gray-100 px-1 rounded dark:bg-gray-700">@</code>{" "}
+          for pending tasks.
         </p>
         <p className="mt-1">
           Changes are saved when you click outside the text area.

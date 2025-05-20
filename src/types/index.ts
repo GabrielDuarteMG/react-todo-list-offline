@@ -40,5 +40,6 @@ export interface TaskStore {
   setFilterText: (text: string) => void;
   exportTasks: () => Promise<void>;
   importTasks: (url: string) => Promise<void>;
+  exportTasksToGist: () => Promise<void>;
   importFromGist: (url: string) => Promise<void>;
 }
