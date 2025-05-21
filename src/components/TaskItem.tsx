@@ -24,6 +24,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
 
   const handleToggle = () => {
     toggleTask(task.id);
+    sendTasks()
   };
 
   const handleEdit = () => {

@@ -31,6 +31,7 @@ const TaskForm: React.FC = () => {
     const value = e.target.value;
     setInputValue(value);
     setFilterText(value);
+    sendTasks()
   };
 
   return (
