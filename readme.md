@@ -2,6 +2,10 @@
 
 A feature-rich task management application built with React and TypeScript that works offline with local data storage.
 
+## Live Example
+
+Try the app instantly: [Example Here!](https://todo-list.gabriel160499.workers.dev/)
+
 ## Features
 
 - 🗂️ Create multiple todo lists to organize different types of tasks
