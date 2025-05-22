@@ -285,24 +285,19 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   },
 
   importFromGist: async (gistId: string) => {
-    fetch(`https://api.github.com/gists/${gistId}`)
-      .then((response) => response.json())
-      .then(async (data) => {
-        const gistContent = data.files["tasks.json"].content;
+    const response = await fetch(`https://api.github.com/gists/${gistId}`);
+    const data = await response.json();
+    const gistContent = data.files["tasks.json"].content;
 
-        await importDataFromJSON(gistContent);
-        const parsedData = JSON.parse(gistContent);
-        const { todoLists, tasks } = parsedData;
-        set({ todoLists, tasks });
-        const { currentTodoList } = get();
-        if (!currentTodoList && todoLists.length > 0) {
-          set({ currentTodoList: todoLists[0].id });
-          get().fetchTasks();
-        }
-      })
-      .catch((error) => {
-        console.error("Erro ao buscar o gist:", error);
-      });
+    await importDataFromJSON(gistContent);
+    const parsedData = JSON.parse(gistContent);
+    const { todoLists, tasks } = parsedData;
+    set({ todoLists, tasks });
+    const { currentTodoList } = get();
+    if (!currentTodoList && todoLists.length > 0) {
+      set({ currentTodoList: todoLists[0].id });
+      await get().fetchTasks();
+    }
   },
 
   exportTasksToGist: async () => {
