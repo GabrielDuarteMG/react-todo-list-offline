@@ -4,13 +4,15 @@ A feature-rich task management application built with React and TypeScript that 
 
 ## Features
 
-- ✅ Create multiple todo lists to organize different types of tasks
-- ✅ Add, edit, and delete tasks
+- 🗂️ Create multiple todo lists to organize different types of tasks
+- ✏️ Add, edit, and delete tasks
 - ✅ Mark tasks as complete/incomplete
-- ✅ Toggle between list view and text view modes
-- ✅ Filter tasks with real-time search
-- ✅ Offline support with IndexedDB storage
-- ✅ Responsive design for all devices
+- 🔄 Toggle between list view and text view modes
+- 🔍 Filter tasks with real-time search
+- 📥📤 Import and export todo lists as JSON files
+- ☁️ Auto-import and integration with GitHub Gist for syncing lists
+- 📶 Offline support with IndexedDB storage
+- 📱 Responsive design for all devices
 
 ## Installation
 
@@ -50,6 +52,14 @@ npm run preview
 - Delete tasks using the trash icon
 - Mark tasks complete by checking the checkbox
 
+### Importing and Exporting Lists
+- **Import List**: Click the "Import" button to import from URL.
+- **Export List**: Click the "Export" button to download your current lists as a JSON file.
+
+### GitHub Gist Integration
+- **Auto-import**: Connect your GitHub account and provide a Gist ID to automatically sync your lists.
+- **Export to Gist**: Save your current lists to a GitHub Gist for backup or sharing.
+
 ### View Modes
 - **List View**: Classic task list with checkboxes
 - **Text View**: Alternative text-based interface where:
@@ -64,6 +74,7 @@ npm run preview
 - **State Management**: [Zustand](https://github.com/pmndrs/zustand)
 - **Storage**: IndexedDB for offline data persistence
 - **UI Components**: Custom components with [Lucide Icons](https://lucide.dev/)
+- **Integration**: GitHub Gist API for cloud sync
 
 ## Project Structure
 
@@ -75,9 +86,9 @@ src/
 │   ├── TaskItem.tsx
 │   ├── TaskList.tsx
 │   ├── TaskTextArea.tsx
-│   └── TodoListTabs.tsx
+│   ├── TodoListTabs.tsx
 ├── services/           # Data services
-│   └── indexedDB.ts
+│   ├── indexedDB.ts
 ├── store/              # State management
 │   └── taskStore.ts
 └── types/              # TypeScript types
