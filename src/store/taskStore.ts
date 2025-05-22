@@ -32,7 +32,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
       const { currentTodoList } = get();
       if (!currentTodoList && todoLists.length > 0) {
         set({ currentTodoList: todoLists[0].id });
-        get().fetchTasks();
+        await get().fetchTasks();
       }
     } catch (error) {
       set({
@@ -269,7 +269,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   importTasks: async (url: string) => {
     if (url.includes("gist.github.com")) {
       const gistId = url.split("/").pop();
-      get().importFromGist(gistId!);
+      await get().importFromGist(gistId!);
       return;
     }
     const data = await (await fetch(url)).text();
@@ -280,7 +280,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     const { currentTodoList } = get();
     if (!currentTodoList && todoLists.length > 0) {
       set({ currentTodoList: todoLists[0].id });
-      get().fetchTasks();
+      await get().fetchTasks();
     }
   },
 
@@ -305,27 +305,30 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
     const gistUrl = localStorage.getItem("gistId");
     if (Utils.checkGithubToken(githubToken) && gistUrl) {
       const data = await exportAllDataToJSON();
-      fetch(`https://api.github.com/gists/${Utils.getGistIdByUrl(gistUrl)}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `token ${githubToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          files: {
-            "tasks.json": {
-              content: data,
+      const minifiedData = data.replace(/\s+/g, " ");
+      try {
+        const response = await fetch(
+          `https://api.github.com/gists/${Utils.getGistIdByUrl(gistUrl)}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `token ${githubToken}`,
+              "Content-Type": "application/json",
             },
-          },
-        }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          console.log("Gist atualizado com sucesso:", data);
-        })
-        .catch((error) => {
-          console.error("Erro ao atualizar o gist:", error);
-        });
+            body: JSON.stringify({
+              files: {
+                "tasks.json": {
+                  content: minifiedData,
+                },
+              },
+            }),
+          }
+        );
+        const result = await response.json();
+        console.log("Gist atualizado com sucesso:", result);
+      } catch (error) {
+        console.error("Erro ao atualizar o gist:", error);
+      }
     }
   },
 }));
